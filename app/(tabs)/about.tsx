@@ -95,7 +95,10 @@ export default function AboutScreen() {
             This calculator is designed for educational purposes only.
           </Text>
           <Text style={styles.footerText}>
-            © 2023 Marwari Interest Calculator
+            Designed and developed by Krishna Malani
+          </Text>
+          <Text style={styles.footerText}>
+            2025 Marwari Interest Calculator
           </Text>
         </View>
       </ScrollView>

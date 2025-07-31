@@ -7,16 +7,14 @@ import {
   View,
   Share
 } from "react-native";
-import { Share2 } from "lucide-react-native";
+import { ShareIcon } from "./SimpleIcons";
 import Colors from "@/constants/colors";
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 
 interface ShareButtonProps {
-  onPress: () => Promise<string>;
+  results: any;
 }
 
-export default function ShareButton({ onPress }: ShareButtonProps) {
+export default function ShareButton({ results }: ShareButtonProps) {
   // Only show share button on mobile
   if (Platform.OS === 'web') {
     return null;
@@ -24,27 +22,16 @@ export default function ShareButton({ onPress }: ShareButtonProps) {
 
   const handleShare = async () => {
     try {
-      // Get the PDF file path from the onPress callback
-      const filePath = await onPress();
+      if (!results) return;
       
-      if (Platform.OS === 'ios' || Platform.OS === 'android') {
-        // Check if sharing is available
-        const isSharingAvailable = await Sharing.isAvailableAsync();
-        
-        if (isSharingAvailable) {
-          await Sharing.shareAsync(filePath, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Share Interest Calculation',
-            UTI: 'com.adobe.pdf' // iOS only
-          });
-        } else {
-          // Fallback for when sharing is not available
-          alert('Sharing is not available on this device');
-        }
-      }
+      const shareText = `Interest Calculator Results\n\nPrincipal: ₹${results.principal}\nInterest Rate: ${results.yearlyRate}%\nTotal Interest: ₹${results.interest}\nTotal Amount: ₹${results.total}\n\nCalculated on: ${new Date().toLocaleDateString()}\n\nDesigned and developed by Krishna Malani © 2025`;
+      
+      await Share.share({
+        message: shareText,
+        title: 'Interest Calculator Results'
+      });
     } catch (error) {
-      console.error('Error sharing PDF:', error);
-      alert('Failed to share results. Please try again.');
+      console.error('Error sharing:', error);
     }
   };
 
@@ -55,7 +42,7 @@ export default function ShareButton({ onPress }: ShareButtonProps) {
       activeOpacity={0.8}
     >
       <View style={styles.buttonContent}>
-        <Share2 size={20} color={Colors.buttonText} />
+        <Text style={{ fontSize: 20, color: "white" }}>📤</Text>
         <Text style={styles.text}>Share Results</Text>
       </View>
     </TouchableOpacity>

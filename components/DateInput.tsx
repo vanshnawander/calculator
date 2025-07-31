@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Platform, Pressable } from "react-native";
-import { Calendar } from "lucide-react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import React from "react";
+import { View, Text, TextInput, StyleSheet } from "react-native";
+import { CalendarIcon } from "./SimpleIcons";
 import Colors from "@/constants/colors";
 
 interface DateInputProps {
@@ -23,21 +22,35 @@ export default function DateInput({
   style,
   error,
 }: DateInputProps) {
-  const [showPicker, setShowPicker] = useState(false);
-  
-  const handleDateChange = (_: any, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === "ios");
-    if (selectedDate) {
-      onDateSelect(selectedDate);
-    }
-  };
 
-  // Convert DD/MM/YYYY to a Date object
-  const getDateFromString = (dateString: string) => {
-    if (!dateString || !dateString.includes("/")) return new Date();
+  // Handle date input changes with automatic formatting
+  const handleDateInput = (text: string) => {
+    // Remove non-numeric characters except /
+    let cleaned = text.replace(/[^0-9/]/g, '');
     
-    const [day, month, year] = dateString.split("/").map(Number);
-    return new Date(year, month - 1, day);
+    // Auto-format as user types
+    if (cleaned.length >= 2 && cleaned.charAt(2) !== '/') {
+      cleaned = cleaned.substring(0, 2) + '/' + cleaned.substring(2);
+    }
+    if (cleaned.length >= 5 && cleaned.charAt(5) !== '/') {
+      cleaned = cleaned.substring(0, 5) + '/' + cleaned.substring(5);
+    }
+    
+    // Limit to DD/MM/YYYY format
+    if (cleaned.length > 10) {
+      cleaned = cleaned.substring(0, 10);
+    }
+    
+    onChangeText(cleaned);
+    
+    // If complete date, validate and call onDateSelect
+    if (cleaned.length === 10) {
+      const [day, month, year] = cleaned.split('/').map(Number);
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+        const date = new Date(year, month - 1, day);
+        onDateSelect(date);
+      }
+    }
   };
 
   return (
@@ -50,29 +63,16 @@ export default function DateInput({
             error ? styles.inputError : null,
           ]}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={handleDateInput}
           placeholder={placeholder}
           keyboardType="numeric"
           placeholderTextColor="#9CA3AF"
         />
-        <Pressable 
-          style={styles.calendarButton}
-          onPress={() => setShowPicker(true)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Calendar size={20} color={Colors.primary} />
-        </Pressable>
+        <View style={styles.iconContainer}>
+          <CalendarIcon size={20} color={Colors.primary} />
+        </View>
       </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      
-      {showPicker && (
-        <DateTimePicker
-          value={getDateFromString(value)}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleDateChange}
-        />
-      )}
     </View>
   );
 }
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: Colors.error,
   },
-  calendarButton: {
+  iconContainer: {
     position: "absolute",
     right: 12,
     padding: 8,

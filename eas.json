@@ -33,7 +33,8 @@
       },
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:assembleRelease",
+        "image": "latest"
       },
       "ios": {
         "resourceClass": "m-medium"

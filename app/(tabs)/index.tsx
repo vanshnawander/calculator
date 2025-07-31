@@ -23,7 +23,7 @@ import { calculateInterest } from "@/utils/calculationUtils";
 import { printResults } from "@/utils/printUtils";
 import { generatePDF } from "@/utils/pdfUtils";
 import Colors from "@/constants/colors";
-import { Picker } from "@react-native-picker/picker";
+import SimplePicker from "@/components/SimplePicker";
 
 export default function CalculatorScreen() {
   const [formData, setFormData] = useState({
@@ -244,16 +244,14 @@ export default function CalculatorScreen() {
                   
                   <View style={styles.pickerContainer}>
                     <Text style={styles.label}>Rate Period</Text>
-                    <View style={styles.picker}>
-                      <Picker
-                        selectedValue={formData.interestPeriod}
-                        onValueChange={(value) => handleInputChange("interestPeriod", value)}
-                        style={{ height: 50 }}
-                      >
-                        <Picker.Item label="Monthly" value="monthly" />
-                        <Picker.Item label="Yearly" value="yearly" />
-                      </Picker>
-                    </View>
+                    <SimplePicker
+                      selectedValue={formData.interestPeriod}
+                      onValueChange={(value) => handleInputChange("interestPeriod", value)}
+                      items={[
+                        { label: "Monthly", value: "monthly" },
+                        { label: "Yearly", value: "yearly" }
+                      ]}
+                    />
                   </View>
                 </View>
                 
@@ -322,7 +320,7 @@ export default function CalculatorScreen() {
                 
                 <View style={styles.exportButtonsContainer}>
                   <PrintButton onPress={handlePrint} />
-                  <ShareButton onPress={handleGeneratePDF} />
+                  <ShareButton results={results} />
                 </View>
               </View>
               

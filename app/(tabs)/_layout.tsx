@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { Calculator, Info } from "lucide-react-native";
+import { CalculatorIcon, InfoIcon } from "@/components/SimpleIcons";
 import Colors from "@/constants/colors";
 
 export default function TabLayout() {
@@ -26,14 +26,18 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Calculator",
-          tabBarIcon: ({ color }) => <Calculator size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <CalculatorIcon color={color} size={28} />
+          ),
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
           title: "About",
-          tabBarIcon: ({ color }) => <Info size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <InfoIcon color={color} size={28} />
+          ),
         }}
       />
     </Tabs>

@@ -6,7 +6,7 @@ import {
   Platform,
   View
 } from "react-native";
-import { Printer } from "lucide-react-native";
+import { PrinterIcon } from "./SimpleIcons";
 import Colors from "@/constants/colors";
 
 interface PrintButtonProps {
@@ -26,7 +26,7 @@ export default function PrintButton({ onPress }: PrintButtonProps) {
       activeOpacity={0.8}
     >
       <View style={styles.buttonContent}>
-        <Printer size={20} color={Colors.buttonText} />
+        <Text style={{ fontSize: 20, color: "white" }}>🖨️</Text>
         <Text style={styles.text}>Print Results</Text>
       </View>
     </TouchableOpacity>

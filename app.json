@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.vansh.marwari-interest-calculator"
+      "bundleIdentifier": "app.krishnamalani.marwari-interest-calculator"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.vanshnawander.marwariinterestcalculator"
+      "package": "com.krishnamalani.marwariinterestcalculator"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

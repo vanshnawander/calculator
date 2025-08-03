@@ -25,30 +25,62 @@ export default function DateInput({
 }: DateInputProps) {
   const [showPicker, setShowPicker] = useState(false);
 
-  // Handle date input changes with automatic formatting
+  // Handle date input changes with better cursor management
   const handleDateInput = (text: string) => {
-    // Remove non-numeric characters except /
-    let cleaned = text.replace(/[^0-9/]/g, '');
-    
-    // Auto-format as user types
-    if (cleaned.length >= 2 && cleaned.charAt(2) !== '/') {
-      cleaned = cleaned.substring(0, 2) + '/' + cleaned.substring(2);
+    // If user is clearing the input
+    if (text === '') {
+      onChangeText('');
+      return;
     }
-    if (cleaned.length >= 5 && cleaned.charAt(5) !== '/') {
-      cleaned = cleaned.substring(0, 5) + '/' + cleaned.substring(5);
+
+    // Remove all non-numeric characters
+    const numbers = text.replace(/\D/g, '');
+    
+    // Build the formatted date string based on input length
+    let formattedDate = '';
+    
+    if (numbers.length > 0) {
+      // Add day part (first 2 digits)
+      formattedDate = numbers.substring(0, 2);
+      
+      if (numbers.length > 2) {
+        // Add month part after first /
+        formattedDate = `${formattedDate}/${numbers.substring(2, 4)}`;
+        
+        if (numbers.length > 4) {
+          // Add year part after second /
+          formattedDate = `${formattedDate}/${numbers.substring(4, 8)}`;
+        }
+      }
     }
     
-    // Limit to DD/MM/YYYY format
-    if (cleaned.length > 10) {
-      cleaned = cleaned.substring(0, 10);
-    }
+    // Update the input text
+    onChangeText(formattedDate);
     
-    onChangeText(cleaned);
-    
-    // If complete date, validate and call onDateSelect
-    if (cleaned.length === 10) {
-      const [day, month, year] = cleaned.split('/').map(Number);
-      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+    // If we have a complete date, validate it
+    if (formattedDate.length === 10) {
+      const [day, month, year] = formattedDate.split('/').map(Number);
+      
+      // Basic date validation
+      const isValidDate = (d: number, m: number, y: number) => {
+        if (m < 1 || m > 12) return false;
+        if (d < 1 || d > 31) return false;
+        if (y < 1900 || y > 2100) return false;
+        
+        // Check for months with 30 days
+        if ([4, 6, 9, 11].includes(m) && d > 30) return false;
+        
+        // Check for February
+        if (m === 2) {
+          const isLeapYear = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+          if (isLeapYear) return d <= 29;
+          return d <= 28;
+        }
+        
+        return true;
+      };
+      
+      if (isValidDate(day, month, year)) {
         const date = new Date(year, month - 1, day);
         onDateSelect(date);
       }
@@ -67,6 +99,20 @@ export default function DateInput({
     }
   };
 
+  // Handle key press to make backspace work better
+  const handleKeyPress = (e: any) => {
+    if (e.nativeEvent.key === 'Backspace') {
+      // If backspace is pressed on a separator, remove the separator and the previous character
+      const cursorPosition = e.target.selectionStart;
+      if (value && cursorPosition && [3, 6].includes(cursorPosition)) {
+        const newValue = value.substring(0, cursorPosition - 2) + value.substring(cursorPosition + 1);
+        onChangeText(newValue);
+        // Prevent default to avoid double backspace
+        e.preventDefault();
+      }
+    }
+  };
+
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.label}>{label}</Text>
@@ -78,13 +124,16 @@ export default function DateInput({
           ]}
           value={value}
           onChangeText={handleDateInput}
+          onKeyPress={handleKeyPress}
           placeholder={placeholder}
           keyboardType="numeric"
           placeholderTextColor="#9CA3AF"
+          maxLength={10}
         />
         <TouchableOpacity 
           style={styles.iconContainer}
           onPress={() => setShowPicker(true)}
+          activeOpacity={0.7}
         >
           <CalendarIcon size={20} color={Colors.primary} />
         </TouchableOpacity>

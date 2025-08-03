@@ -1,5 +1,6 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { CalendarIcon } from "./SimpleIcons";
 import Colors from "@/constants/colors";
 
@@ -22,6 +23,7 @@ export default function DateInput({
   style,
   error,
 }: DateInputProps) {
+  const [showPicker, setShowPicker] = useState(false);
 
   // Handle date input changes with automatic formatting
   const handleDateInput = (text: string) => {
@@ -53,6 +55,18 @@ export default function DateInput({
     }
   };
 
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowPicker(false);
+    if (selectedDate) {
+      const day = selectedDate.getDate().toString().padStart(2, '0');
+      const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = selectedDate.getFullYear().toString();
+      const formattedDate = `${day}/${month}/${year}`;
+      onChangeText(formattedDate);
+      onDateSelect(selectedDate);
+    }
+  };
+
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.label}>{label}</Text>
@@ -68,10 +82,21 @@ export default function DateInput({
           keyboardType="numeric"
           placeholderTextColor="#9CA3AF"
         />
-        <View style={styles.iconContainer}>
+        <TouchableOpacity 
+          style={styles.iconContainer}
+          onPress={() => setShowPicker(true)}
+        >
           <CalendarIcon size={20} color={Colors.primary} />
-        </View>
+        </TouchableOpacity>
       </View>
+      {showPicker && (
+        <DateTimePicker
+          value={value ? new Date(value.split('/').reverse().join('-')) : new Date()}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
